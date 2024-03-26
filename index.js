@@ -37,7 +37,7 @@ app.post(
   "/api/shorturl",
   function (req, res, next) {
     let url = req.body.url.toString();
-    const regex = /(https:\/\/www.)(\S+)/;
+    const regex = /(https:\/\/)(\S+)/;
     const found = url.match(regex);
 
     if (found != null) {
