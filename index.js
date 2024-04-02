@@ -4,11 +4,6 @@ const cors = require("cors");
 const app = express();
 const dns = require("node:dns");
 
-const option = {
-  family: 6,
-  hints: dns.ADDRCONFIG | dns.V4MAPPED,
-};
-
 let shortUrlList = [];
 
 function addShortUrlList(url) {
@@ -36,19 +31,20 @@ app.get("/api/hello", function (req, res) {
 app.post(
   "/api/shorturl",
   function (req, res, next) {
-    let url = req.body.url.toString();
-    const regex = /(https:\/\/)(\S+)/;
-    const found = url.match(regex);
-
-    if (found != null) {
-      dns.lookup(found[2], option, (err, address, family) => {
+    const url = req.body.url.toString();
+    console.log(url);
+    try {
+      const validURL = new URL(url);
+      dns.lookup(validURL.hostname, (err, address, family) => {
         if (!err) {
           addShortUrlList(url);
           next();
+        } else {
+          res.json({ error: "invalid url" });
         }
       });
-    } else {
-      res.json({ error: "Invalid URL" });
+    } catch (e) {
+      res.json({ error: "invalid url" });
     }
   },
   function (req, res) {
